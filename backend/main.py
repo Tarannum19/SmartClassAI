@@ -2,9 +2,10 @@ import os
 
 import pandas as pd
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.auth import router as auth_router
 from backend.prediction import router as prediction_router
 from backend.recommendation import recommend_classroom
 from backend.classrooms import router as classrooms_router
@@ -12,13 +13,13 @@ from backend.upload import router as upload_router
 
 
 # ============================================================
-# SMARTCLASSAI BACKEND
+# SMARTCLASSAI - MAIN BACKEND
 # ============================================================
 
 app = FastAPI(
-    title="SmartClassAI Backend",
+    title="SmartClassAI API",
     description="AI-Powered Classroom Utilization & Energy Optimizer",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 
@@ -30,7 +31,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "http://127.0.0.1:5173"
+        "http://localhost:5174",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5174",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -39,7 +42,7 @@ app.add_middleware(
 
 
 # ============================================================
-# PROJECT PATH
+# PROJECT PATHS
 # ============================================================
 
 BASE_DIR = os.path.dirname(
@@ -48,51 +51,58 @@ BASE_DIR = os.path.dirname(
     )
 )
 
-
-# ============================================================
-# DATASET PATHS
-# ============================================================
-
-ACTIVE_DATASET_PATH = os.path.join(
+DATA_DIR = os.path.join(
     BASE_DIR,
-    "data",
-    "uploads",
-    "active_classroom_data.csv"
+    "data"
 )
 
 DEFAULT_DATASET_PATH = os.path.join(
-    BASE_DIR,
-    "data",
+    DATA_DIR,
     "classroom_data.csv"
+)
+
+UPLOAD_DIR = os.path.join(
+    DATA_DIR,
+    "uploads"
+)
+
+ACTIVE_DATASET_PATH = os.path.join(
+    UPLOAD_DIR,
+    "active_classroom_data.csv"
 )
 
 
 # ============================================================
-# GET ACTIVE DATASET
+# DATASET HELPER
 # ============================================================
 
-def get_dataset_path():
+def get_active_dataset():
+    """
+    Return the currently active classroom dataset.
 
-    if os.path.exists(
-        ACTIVE_DATASET_PATH
-    ):
-        return ACTIVE_DATASET_PATH
+    Uploaded dataset is preferred.
+    Default demo dataset is used as fallback.
+    """
 
-    if os.path.exists(
-        DEFAULT_DATASET_PATH
-    ):
-        return DEFAULT_DATASET_PATH
+    if os.path.exists(ACTIVE_DATASET_PATH):
+        return pd.read_csv(
+            ACTIVE_DATASET_PATH
+        )
 
-    return None
+    if os.path.exists(DEFAULT_DATASET_PATH):
+        return pd.read_csv(
+            DEFAULT_DATASET_PATH
+        )
+
+    return pd.DataFrame()
 
 
 # ============================================================
-# HOME
+# ROOT
 # ============================================================
 
 @app.get("/")
 def root():
-
     return {
         "message": "SmartClassAI Backend is Running!"
     }
@@ -103,19 +113,24 @@ def root():
 # ============================================================
 
 @app.get("/health")
-def health_check():
-
-    dataset_path = get_dataset_path()
-
+def health():
     return {
         "status": "healthy",
-        "dataset_available": dataset_path is not None,
-        "dataset_path": dataset_path
+        "service": "SmartClassAI Backend"
     }
 
 
 # ============================================================
-# INCLUDE ML PREDICTION ROUTER
+# AUTHENTICATION
+# ============================================================
+
+app.include_router(
+    auth_router
+)
+
+
+# ============================================================
+# ML PREDICTION ROUTES
 # ============================================================
 
 app.include_router(
@@ -124,7 +139,7 @@ app.include_router(
 
 
 # ============================================================
-# INCLUDE CLASSROOM ROUTER
+# CLASSROOM ROUTES
 # ============================================================
 
 app.include_router(
@@ -133,7 +148,7 @@ app.include_router(
 
 
 # ============================================================
-# INCLUDE DATASET UPLOAD ROUTER
+# DATASET UPLOAD ROUTES
 # ============================================================
 
 app.include_router(
@@ -153,121 +168,104 @@ def classroom_recommendation(
         description="Number of students who need a classroom"
     )
 ):
+    """
+    Recommend the most suitable classroom
+    according to the active dataset.
 
-    try:
+    The selected classroom must have enough
+    capacity for the required number of students.
+    """
 
-        # ----------------------------------------------------
-        # Find active dataset
-        # ----------------------------------------------------
+    dataframe = get_active_dataset()
 
-        dataset_path = get_dataset_path()
+    if dataframe.empty:
+        return {
+            "message": "No classroom dataset available."
+        }
 
-        if dataset_path is None:
+    classrooms = []
 
-            raise HTTPException(
-                status_code=500,
-                detail="No classroom dataset found."
+    for _, row in dataframe.iterrows():
+
+        try:
+            room_id = str(
+                row["Room_ID"]
             )
 
+            building = str(
+                row["Building"]
+            )
 
-        # ----------------------------------------------------
-        # Load dataset
-        # ----------------------------------------------------
+            capacity = int(
+                row["Room_Capacity"]
+            )
 
-        df = pd.read_csv(
-            dataset_path
-        )
+            utilization = float(
+                row.get(
+                    "Utilization_Percentage",
+                    0
+                )
+            )
 
-
-        # ----------------------------------------------------
-        # Check required columns
-        # ----------------------------------------------------
-
-        required_columns = [
-            "Room_ID",
-            "Room_Capacity"
-        ]
-
-        missing_columns = [
-            column
-            for column in required_columns
-            if column not in df.columns
-        ]
-
-        if missing_columns:
-
-            raise HTTPException(
-                status_code=500,
-                detail={
-                    "message":
-                        "Dataset is missing required columns.",
-                    "missing_columns":
-                        missing_columns
+            classrooms.append(
+                {
+                    "Room_ID": room_id,
+                    "Building": building,
+                    "Room_Capacity": capacity,
+                    "Utilization_Percentage": utilization,
                 }
             )
 
+        except (
+            KeyError,
+            ValueError,
+            TypeError
+        ):
+            continue
 
-        # ----------------------------------------------------
-        # Prepare classroom list
-        # ----------------------------------------------------
+    # Remove duplicate classrooms.
+    unique_classrooms = {}
 
-        classroom_columns = [
-            "Room_ID",
-            "Room_Capacity"
-        ]
+    for room in classrooms:
 
-        if "Building" in df.columns:
+        room_id = room["Room_ID"]
 
-            classroom_columns.insert(
-                1,
-                "Building"
-            )
+        unique_classrooms[
+            room_id
+        ] = room
 
+    classrooms = list(
+        unique_classrooms.values()
+    )
 
-        classrooms_df = (
-            df[classroom_columns]
-            .drop_duplicates(
-                "Room_ID"
-            )
-            .sort_values(
-                "Room_ID"
-            )
-        )
+    if not classrooms:
+        return {
+            "message": "No classroom data available."
+        }
 
-
-        classrooms = (
-            classrooms_df
-            .to_dict(
-                orient="records"
-            )
-        )
+    return recommend_classroom(
+        required_students,
+        classrooms
+    )
 
 
-        # ----------------------------------------------------
-        # Get recommendation
-        # ----------------------------------------------------
+# ============================================================
+# APPLICATION STARTUP
+# ============================================================
 
-        result = recommend_classroom(
-            required_students,
-            classrooms
-        )
+@app.on_event("startup")
+def startup_event():
 
-
-        # ----------------------------------------------------
-        # Return result
-        # ----------------------------------------------------
-
-        return result
-
-
-    except HTTPException:
-
-        raise
-
-
-    except Exception as e:
-
-        raise HTTPException(
-            status_code=500,
-            detail=f"Unable to get classroom recommendation: {str(e)}"
-        )
+    print()
+    print("=" * 60)
+    print("SMARTCLASSAI BACKEND")
+    print("=" * 60)
+    print("Backend API: http://127.0.0.1:8000")
+    print("Frontend: http://localhost:5173")
+    print("Frontend: http://localhost:5174")
+    print("Authentication: Enabled")
+    print("ML Prediction: Enabled")
+    print("Classroom Recommendation: Enabled")
+    print("Dataset Upload: Enabled")
+    print("=" * 60)
+    print()

@@ -1,262 +1,246 @@
-import os
-import random
-import numpy as np
 import pandas as pd
-
+import numpy as np
+from datetime import datetime, timedelta
+import random
 
 # ============================================================
-# SMARTCLASSAI - CLASSROOM DATASET GENERATOR
+# SmartClassAI - Classroom Dataset Generator
 # ============================================================
 
-# Reproducibility
 random.seed(42)
 np.random.seed(42)
 
+# ------------------------------------------------------------
+# Dataset settings
+# ------------------------------------------------------------
 
-# ============================================================
-# PROJECT PATH
-# ============================================================
+NUM_RECORDS = 5000
 
-# notebooks/create_dataset.py
-# Project root = one folder above notebooks
+# Classroom capacities for our DEMO dataset.
+# The website itself is NOT limited to 200.
+ROOM_CAPACITIES = {
+    "CR-01": 40,
+    "CR-02": 50,
+    "CR-03": 60,
+    "CR-04": 70,
+    "CR-05": 80,
+    "CR-06": 90,
+    "CR-07": 100,
+    "CR-08": 110,
+    "CR-09": 120,
+    "CR-10": 130,
+    "CR-11": 140,
+    "CR-12": 150,
+    "CR-13": 160,
+    "CR-14": 170,
+    "CR-15": 180,
+    "CR-16": 190,
+    "CR-17": 200,
+    "CR-18": 75,
+    "CR-19": 95,
+    "CR-20": 125,
+}
 
-PROJECT_ROOT = os.path.dirname(
-    os.path.dirname(
-        os.path.abspath(__file__)
-    )
-)
-
-DATA_DIR = os.path.join(
-    PROJECT_ROOT,
-    "data"
-)
-
-os.makedirs(DATA_DIR, exist_ok=True)
-
-OUTPUT_PATH = os.path.join(
-    DATA_DIR,
-    "classroom_data.csv"
-)
-
-
-# ============================================================
-# DATASET SETTINGS
-# ============================================================
-
-TOTAL_RECORDS = 5000
-
-ROOMS = [
-    "CR-01", "CR-02", "CR-03", "CR-04", "CR-05",
-    "CR-06", "CR-07", "CR-08", "CR-09", "CR-10",
-    "CR-11", "CR-12", "CR-13", "CR-14", "CR-15",
-    "CR-16", "CR-17", "CR-18", "CR-19", "CR-20"
-]
-
-BUILDINGS = [
-    "Main Building",
-    "IT Building",
-    "Science Building"
-]
+ROOM_BUILDINGS = {
+    "CR-01": "Building A",
+    "CR-02": "Building A",
+    "CR-03": "Building A",
+    "CR-04": "Building A",
+    "CR-05": "Building B",
+    "CR-06": "Building B",
+    "CR-07": "Building B",
+    "CR-08": "Building B",
+    "CR-09": "Building B",
+    "CR-10": "Building C",
+    "CR-11": "Building C",
+    "CR-12": "Building C",
+    "CR-13": "Building C",
+    "CR-14": "Building C",
+    "CR-15": "Building D",
+    "CR-16": "Building D",
+    "CR-17": "Building D",
+    "CR-18": "Building D",
+    "CR-19": "Building D",
+    "CR-20": "Building D",
+}
 
 SUBJECTS = [
-    "Python",
-    "Machine Learning",
+    "Computer Science",
     "Data Science",
-    "DBMS",
-    "Web Development",
     "Artificial Intelligence",
-    "Computer Networks",
-    "Operating Systems",
-    "Software Engineering",
-    "Statistics"
+    "Machine Learning",
+    "Python",
+    "Database Management",
+    "Web Development",
+    "Statistics",
 ]
 
 FACULTY_IDS = [
-    f"FAC-{i:02d}"
-    for i in range(1, 31)
-]
-
-CLASS_IDS = [
-    f"CLS-{i:02d}"
-    for i in range(1, 51)
+    "FAC-01",
+    "FAC-02",
+    "FAC-03",
+    "FAC-04",
+    "FAC-05",
+    "FAC-06",
+    "FAC-07",
+    "FAC-08",
+    "FAC-09",
+    "FAC-10",
 ]
 
 TIME_SLOTS = [
-    "08-09",
-    "09-10",
-    "10-11",
-    "11-12",
-    "12-13",
-    "13-14",
-    "14-15",
-    "15-16",
-    "16-17"
+    "09:00-10:00",
+    "10:00-11:00",
+    "11:00-12:00",
+    "12:00-13:00",
+    "13:00-14:00",
+    "14:00-15:00",
+    "15:00-16:00",
+    "16:00-17:00",
 ]
 
-ROOM_CAPACITIES = [
-    30,
-    40,
-    50,
-    60,
-    80
+DAYS = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
 ]
 
 
-# ============================================================
-# ROOM INFORMATION
-# ============================================================
+# ------------------------------------------------------------
+# Helper functions
+# ------------------------------------------------------------
 
-room_information = {}
+def calculate_utilization(total_students, room_capacity):
+    """
+    Calculate classroom utilization percentage.
+    """
+    if room_capacity <= 0:
+        return 0
 
-for room in ROOMS:
+    utilization = (total_students / room_capacity) * 100
+    return round(min(utilization, 100), 2)
 
-    capacity = random.choice(
-        ROOM_CAPACITIES
+
+def calculate_energy(
+    computer_count,
+    ac_hours,
+    light_hours,
+    fan_hours,
+    class_duration
+):
+    """
+    Estimate classroom energy consumption.
+    """
+
+    computer_energy = computer_count * 0.15 * class_duration
+    ac_energy = ac_hours * 2.0
+    light_energy = light_hours * 0.8
+    fan_energy = fan_hours * 0.1
+
+    total_energy = (
+        computer_energy
+        + ac_energy
+        + light_energy
+        + fan_energy
     )
 
-    building = random.choice(
-        BUILDINGS
-    )
-
-    room_information[room] = {
-        "Room_Capacity": capacity,
-        "Building": building
-    }
+    return round(max(total_energy, 0.1), 2)
 
 
-# ============================================================
-# DATE RANGE
-# ============================================================
-
-dates = pd.date_range(
-    start="2025-06-01",
-    end="2025-12-31",
-    freq="D"
-)
-
-
-# ============================================================
-# GENERATE DATA
-# ============================================================
+# ------------------------------------------------------------
+# Generate records
+# ------------------------------------------------------------
 
 records = []
 
+start_date = datetime(2025, 1, 1)
 
-for _ in range(TOTAL_RECORDS):
+room_ids = list(ROOM_CAPACITIES.keys())
 
-    # --------------------------------------------------------
-    # Basic classroom information
-    # --------------------------------------------------------
+for i in range(NUM_RECORDS):
 
-    date = random.choice(dates)
+    # -------------------------
+    # Date and time
+    # -------------------------
 
-    time_slot = random.choice(
-        TIME_SLOTS
+    date = start_date + timedelta(
+        days=random.randint(0, 364)
     )
 
-    room_id = random.choice(
-        ROOMS
-    )
+    time_slot = random.choice(TIME_SLOTS)
 
-    building = room_information[
-        room_id
-    ]["Building"]
+    # -------------------------
+    # Classroom
+    # -------------------------
 
-    room_capacity = room_information[
-        room_id
-    ]["Room_Capacity"]
+    room_id = random.choice(room_ids)
 
+    room_capacity = ROOM_CAPACITIES[room_id]
 
-    # --------------------------------------------------------
+    building = ROOM_BUILDINGS[room_id]
+
+    # -------------------------
     # Class information
-    # --------------------------------------------------------
+    # -------------------------
 
-    class_id = random.choice(
-        CLASS_IDS
-    )
+    class_id = f"CLS-{random.randint(1, 100):03d}"
 
-    subject = random.choice(
-        SUBJECTS
-    )
+    subject = random.choice(SUBJECTS)
 
-    faculty_id = random.choice(
-        FACULTY_IDS
-    )
-
-
-    # --------------------------------------------------------
-    # Day information
-    # --------------------------------------------------------
+    faculty_id = random.choice(FACULTY_IDS)
 
     day = date.strftime("%A")
 
-
-    # --------------------------------------------------------
+    # -------------------------
     # Students
-    # IMPORTANT:
-    # Total_Students can NEVER exceed Room_Capacity
-    # --------------------------------------------------------
+    # -------------------------
+
+    # Students are ALWAYS less than or equal
+    # to the classroom capacity.
 
     minimum_students = max(
-        5,
+        10,
         int(room_capacity * 0.20)
     )
 
-    maximum_students = max(
-        minimum_students,
-        int(room_capacity * 0.95)
-    )
+    maximum_students = room_capacity
 
     total_students = random.randint(
         minimum_students,
         maximum_students
     )
 
-
-    # --------------------------------------------------------
+    # -------------------------
     # Class duration
-    # --------------------------------------------------------
+    # -------------------------
 
     class_duration = random.choice(
-        [1, 1, 1, 1.5, 2, 2, 3]
+        [1, 1, 1.5, 2, 2, 3]
     )
 
-
-    # --------------------------------------------------------
-    # Holiday
-    # --------------------------------------------------------
+    # -------------------------
+    # Holiday / college event
+    # -------------------------
 
     holiday = random.choice(
-        [0, 0, 0, 0, 0, 1]
-    )
-
-
-    # --------------------------------------------------------
-    # College event
-    # --------------------------------------------------------
-
-    college_event = random.choice(
         [0, 0, 0, 0, 1]
     )
 
-
-    # --------------------------------------------------------
-    # Attendance percentage
-    # --------------------------------------------------------
-
-    attendance_percentage = round(
-        np.random.uniform(
-            65,
-            98
-        ),
-        2
+    college_event = random.choice(
+        [0, 0, 0, 1]
     )
 
+    # -------------------------
+    # Attendance
+    # -------------------------
 
-    # --------------------------------------------------------
-    # Attendance count
-    # Must never exceed Total_Students
-    # --------------------------------------------------------
+    attendance_percentage = round(
+        random.uniform(55, 100),
+        2
+    )
 
     attendance_count = int(
         round(
@@ -266,434 +250,180 @@ for _ in range(TOTAL_RECORDS):
         )
     )
 
+    # Safety validation
     attendance_count = min(
         attendance_count,
         total_students
     )
 
-
-    # --------------------------------------------------------
+    # -------------------------
     # Previous occupancy
-    # --------------------------------------------------------
+    # -------------------------
 
-    previous_occupancy = random.randint(
-        max(
-            0,
-            int(room_capacity * 0.15)
-        ),
-        max(
-            1,
-            int(room_capacity * 0.95)
-        )
+    previous_occupancy = round(
+        random.uniform(20, 100),
+        2
     )
 
-
-    # --------------------------------------------------------
-    # Computer count
-    # --------------------------------------------------------
+    # -------------------------
+    # Equipment
+    # -------------------------
 
     computer_count = random.randint(
         0,
-        min(
-            40,
-            room_capacity
-        )
+        min(40, room_capacity)
     )
 
-
-    # --------------------------------------------------------
-    # AC hours
-    # --------------------------------------------------------
-
-    if holiday == 1:
-
-        ac_hours = round(
-            np.random.uniform(
-                0,
-                1
-            ),
-            2
-        )
-
-    else:
-
-        ac_hours = round(
-            np.random.uniform(
-                0.25,
-                min(
-                    3.0,
-                    class_duration + 0.5
-                )
-            ),
-            2
-        )
-
-
-    # --------------------------------------------------------
-    # Light hours
-    # --------------------------------------------------------
-
-    if holiday == 1:
-
-        light_hours = round(
-            np.random.uniform(
-                0,
-                0.5
-            ),
-            2
-        )
-
-    else:
-
-        light_hours = round(
-            np.random.uniform(
-                0.5,
-                min(
-                    4.0,
-                    class_duration + 1
-                )
-            ),
-            2
-        )
-
-
-    # --------------------------------------------------------
-    # Fan hours
-    # --------------------------------------------------------
-
-    if holiday == 1:
-
-        fan_hours = round(
-            np.random.uniform(
-                0,
-                0.5
-            ),
-            2
-        )
-
-    else:
-
-        fan_hours = round(
-            np.random.uniform(
-                0.25,
-                min(
-                    3.0,
-                    class_duration + 0.5
-                )
-            ),
-            2
-        )
-
-
-    # ========================================================
-    # UTILIZATION
-    # ========================================================
-
-    # Classroom utilization is based on students present
-    # compared with room capacity.
-
-    attendance_based_students = (
-        attendance_count
+    ac_hours = round(
+        random.uniform(1, class_duration + 3),
+        1
     )
 
-    utilization_percentage = (
-        attendance_based_students
-        / room_capacity
-    ) * 100
-
-
-    # Add a small effect from previous occupancy
-    utilization_percentage = (
-        utilization_percentage * 0.75
-        + (
-            previous_occupancy
-            / room_capacity
-            * 100
-        ) * 0.25
+    light_hours = round(
+        random.uniform(1, class_duration + 3),
+        1
     )
 
-
-    # Event/holiday effect
-
-    if college_event == 1:
-        utilization_percentage += random.uniform(
-            2,
-            8
-        )
-
-    if holiday == 1:
-        utilization_percentage *= random.uniform(
-            0.1,
-            0.4
-        )
-
-
-    # Keep utilization realistic
-    utilization_percentage = max(
-        0,
-        min(
-            utilization_percentage,
-            100
-        )
+    fan_hours = round(
+        random.uniform(1, class_duration + 3),
+        1
     )
 
-    utilization_percentage = round(
-        utilization_percentage,
-        2
+    # -------------------------
+    # Energy
+    # -------------------------
+
+    energy_consumption = calculate_energy(
+        computer_count,
+        ac_hours,
+        light_hours,
+        fan_hours,
+        class_duration
     )
 
+    # -------------------------
+    # Utilization
+    # -------------------------
 
-    # ========================================================
-    # ENERGY CONSUMPTION
-    # ========================================================
-
-    # Base energy
-
-    energy = (
-        1.2
-        + (room_capacity * 0.025)
-        + (total_students * 0.018)
-        + (computer_count * 0.035)
-        + (ac_hours * 2.2)
-        + (light_hours * 0.8)
-        + (fan_hours * 0.6)
+    utilization_percentage = calculate_utilization(
+        total_students,
+        room_capacity
     )
 
-
-    # Class duration effect
-
-    energy *= (
-        0.75
-        + (class_duration * 0.25)
-    )
-
-
-    # Holiday reduces energy
-
-    if holiday == 1:
-        energy *= 0.25
-
-
-    # College event slightly increases energy
-
-    if college_event == 1:
-        energy *= 1.08
-
-
-    # Small natural variation
-
-    energy += np.random.normal(
-        0,
-        0.25
-    )
-
-
-    # Energy should never be negative
-
-    energy = max(
-        0.5,
-        energy
-    )
-
-    energy = round(
-        energy,
-        2
-    )
-
-
-    # ========================================================
-    # STORE RECORD
-    # ========================================================
+    # -------------------------
+    # Store record
+    # -------------------------
 
     records.append({
-
-        "Date": date.strftime(
-            "%Y-%m-%d"
-        ),
-
+        "Date": date.strftime("%Y-%m-%d"),
         "Time_Slot": time_slot,
-
         "Room_ID": room_id,
-
         "Building": building,
-
         "Room_Capacity": room_capacity,
-
         "Class_ID": class_id,
-
         "Subject": subject,
-
         "Faculty_ID": faculty_id,
-
         "Day": day,
-
         "Total_Students": total_students,
-
         "Class_Duration": class_duration,
-
         "Holiday": holiday,
-
         "College_Event": college_event,
-
         "Attendance_Percentage": attendance_percentage,
-
         "Attendance_Count": attendance_count,
-
         "Previous_Occupancy": previous_occupancy,
-
         "Computer_Count": computer_count,
-
         "AC_Hours": ac_hours,
-
         "Light_Hours": light_hours,
-
         "Fan_Hours": fan_hours,
-
-        "Energy_Consumption_kWh": energy,
-
-        "Utilization_Percentage": utilization_percentage
+        "Energy_Consumption_kWh": energy_consumption,
+        "Utilization_Percentage": utilization_percentage,
     })
 
 
-# ============================================================
-# CREATE DATAFRAME
-# ============================================================
+# ------------------------------------------------------------
+# Create DataFrame
+# ------------------------------------------------------------
 
-df = pd.DataFrame(
-    records
+df = pd.DataFrame(records)
+
+
+# ------------------------------------------------------------
+# Validation
+# ------------------------------------------------------------
+
+assert (
+    df["Total_Students"]
+    <= df["Room_Capacity"]
+).all(), (
+    "Error: Total students exceed room capacity."
 )
 
-
-# ============================================================
-# FINAL VALIDATION
-# ============================================================
-
-# Make sure students never exceed capacity.
-
-invalid_students = (
-    df["Total_Students"]
-    > df["Room_Capacity"]
-).sum()
-
-if invalid_students > 0:
-
-    print(
-        "ERROR: Some records have students greater than capacity."
-    )
-
-    raise ValueError(
-        "Dataset validation failed."
-    )
-
-
-# Attendance count cannot exceed total students.
-
-invalid_attendance = (
+assert (
     df["Attendance_Count"]
-    > df["Total_Students"]
-).sum()
+    <= df["Total_Students"]
+).all(), (
+    "Error: Attendance count exceeds total students."
+)
 
-if invalid_attendance > 0:
+assert (
+    df["Utilization_Percentage"]
+    >= 0
+).all()
 
-    print(
-        "ERROR: Attendance count is greater than total students."
-    )
-
-    raise ValueError(
-        "Dataset validation failed."
-    )
-
-
-# Utilization must stay between 0 and 100.
-
-invalid_utilization = (
-    (df["Utilization_Percentage"] < 0)
-    |
-    (df["Utilization_Percentage"] > 100)
-).sum()
-
-if invalid_utilization > 0:
-
-    print(
-        "ERROR: Invalid utilization percentage."
-    )
-
-    raise ValueError(
-        "Dataset validation failed."
-    )
+assert (
+    df["Utilization_Percentage"]
+    <= 100
+).all()
 
 
-# ============================================================
-# SAVE DATASET
-# ============================================================
+# ------------------------------------------------------------
+# Save dataset
+# ------------------------------------------------------------
+
+output_path = (
+    "../data/classroom_data.csv"
+)
 
 df.to_csv(
-    OUTPUT_PATH,
+    output_path,
     index=False
 )
 
 
-# ============================================================
-# DISPLAY RESULTS
-# ============================================================
+# ------------------------------------------------------------
+# Display results
+# ------------------------------------------------------------
 
-print()
 print("=" * 60)
-print("SMARTCLASSAI DATASET CREATED SUCCESSFULLY!")
+print("SmartClassAI Dataset Generated Successfully!")
 print("=" * 60)
 
-print(
-    f"Total Records: {len(df)}"
-)
+print(f"Total Records   : {len(df)}")
+print(f"Total Columns   : {len(df.columns)}")
 
-print(
-    f"Total Columns: {len(df.columns)}"
-)
-
-print()
-print("Dataset Columns:")
-
-for index, column in enumerate(
-    df.columns,
-    start=1
-):
-
+print("\nClassroom Capacities:")
+for room_id, capacity in ROOM_CAPACITIES.items():
     print(
-        f"{index}. {column}"
+        f"{room_id}: {capacity} students"
     )
 
-print()
+print("\nMaximum Classroom Capacity:")
 print(
-    "Dataset saved at:"
+    f"{df['Room_Capacity'].max()} students"
 )
 
+print("\nValidation:")
 print(
-    OUTPUT_PATH
+    "Students <= Capacity : PASS"
+)
+print(
+    "Attendance <= Students : PASS"
+)
+print(
+    "Utilization 0-100% : PASS"
 )
 
-print()
-print(
-    "Validation:"
-)
-
-print(
-    "✓ Total Students <= Room Capacity"
-)
-
-print(
-    "✓ Attendance Count <= Total Students"
-)
-
-print(
-    "✓ Utilization Percentage between 0 and 100"
-)
-
-print(
-    "✓ 22 columns generated"
-)
-
-print(
-    "✓ 5,000 records generated"
-)
+print("\nDataset saved to:")
+print(output_path)
 
 print("=" * 60)

@@ -5,3 +5,8 @@ node_modules/
 frontend/dist/
 data/uploads/
 .env
+
+# Local database
+data/*.db
+data/*.sqlite
+data/*.sqlite3
