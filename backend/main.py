@@ -41,7 +41,7 @@ app.add_middleware(
 
         # Live Render frontend
         "https://smartclassai-frontend-live.onrender.com",
-        
+        "https://smartclassai-frontend.onrender.com",
     ],
     allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
