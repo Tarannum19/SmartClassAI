@@ -15,7 +15,7 @@ import {
 } from "recharts";
 import "./App.css";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "http://https://smartclassai-backend-wud1.onrender.com";
 
 
 function DashboardPageWrapper({ render }) {
@@ -3911,7 +3911,7 @@ textAlign: "center",
 
           <SettingRow
             title="Backend API"
-            value="http://127.0.0.1:8000"
+            value="http://https://smartclassai-backend-wud1.onrender.com"
           />
 
           <SettingRow
@@ -4690,7 +4690,7 @@ function AuthPage({
 
         try {
           const response = await fetch(
-            "http://127.0.0.1:8000/auth/verify-registration",
+            "http://https://smartclassai-backend-wud1.onrender.com/auth/verify-registration",
             {
               method: "POST",
               headers: {
@@ -4747,7 +4747,7 @@ function AuthPage({
 
       try {
         const response = await fetch(
-          "http://127.0.0.1:8000/auth/register",
+          "http://https://smartclassai-backend-wud1.onrender.com/auth/register",
           {
             method: "POST",
             headers: {
@@ -4800,7 +4800,7 @@ function AuthPage({
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/auth/forgot-password/request",
+        "http://https://smartclassai-backend-wud1.onrender.com/auth/forgot-password/request",
         {
           method: "POST",
           headers: {
@@ -4849,7 +4849,7 @@ function AuthPage({
 
   try {
     const response = await fetch(
-      "http://127.0.0.1:8000/auth/forgot-password/verify",
+      "http://https://smartclassai-backend-wud1.onrender.com/auth/forgot-password/verify",
       {
         method: "POST",
         headers: {
@@ -4903,7 +4903,7 @@ function AuthPage({
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/auth/login",
+        "http://https://smartclassai-backend-wud1.onrender.com/auth/login",
         {
           method: "POST",
           headers: {
