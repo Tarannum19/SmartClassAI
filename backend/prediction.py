@@ -11,10 +11,13 @@ router = APIRouter(
 
 
 # Define model paths
-OCCUPANCY_MODEL_PATH = "models/occupancy_model.pkl"
-ENERGY_MODEL_PATH = "models/energy_model.pkl"
-OCCUPANCY_FEATURES_PATH = "models/occupancy_features.pkl"
-ENERGY_FEATURES_PATH = "models/energy_features.pkl"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODELS_DIR = os.path.join(BASE_DIR, "models")
+
+OCCUPANCY_MODEL_PATH = os.path.join(MODELS_DIR, "occupancy_model.pkl")
+ENERGY_MODEL_PATH = os.path.join(MODELS_DIR, "energy_model.pkl")
+OCCUPANCY_FEATURES_PATH = os.path.join(MODELS_DIR, "occupancy_features.pkl")
+ENERGY_FEATURES_PATH = os.path.join(MODELS_DIR, "energy_features.pkl")
 
 
 # Load trained models

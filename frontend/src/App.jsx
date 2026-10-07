@@ -17,8 +17,51 @@ import "./App.css";
 
 const API_URL = "http://127.0.0.1:8000";
 
+
+function DashboardPageWrapper({ render }) {
+  return render();
+}
+
+function ClassroomsPageWrapper({ render }) {
+  return render();
+}
+
+function PredictionsPageWrapper({ render }) {
+  return render();
+}
+
+function AnalyticsPageWrapper({ render }) {
+  return render();
+}
+
+function DataManagementPageWrapper({ render }) {
+  return render();
+}
+
+function ReportsPageWrapper({ render }) {
+  return render();
+}
+
+function SettingsPageWrapper({ render }) {
+  return render();
+}
+
+function HelpPageWrapper({ render }) {
+  return render();
+}
+
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authMode, setAuthMode] = useState("login");
+
   const [activePage, setActivePage] = useState("Dashboard");
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("smartclassai_user")) || null;
+    } catch {
+      return null;
+    }
+  });
   const [classrooms, setClassrooms] = useState([]);
 
   const [students, setStudents] = useState("");
@@ -67,8 +110,32 @@ function App() {
   });
 
   useEffect(() => {
-    loadClassrooms();
-  }, []);
+    if (isAuthenticated) {
+      loadClassrooms();
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) {
+  return (
+    <AuthPage
+      mode={authMode}
+      onModeChange={setAuthMode}
+      onAuthenticated={() => {
+        try {
+          const savedUser = JSON.parse(
+            localStorage.getItem("smartclassai_user")
+          );
+
+          setCurrentUser(savedUser);
+        } catch {
+          setCurrentUser(null);
+        }
+
+        setIsAuthenticated(true);
+      }}
+    />
+  );
+}
 
   const loadClassrooms = async () => {
     try {
@@ -593,7 +660,7 @@ function App() {
             <div
               style={{
                 color: "#ede9fe",
-                fontSize: "11px",
+                fontSize: "10px",
                 marginTop: "2px",
               }}
             >
@@ -624,7 +691,7 @@ function App() {
               width: "100%",
               border: "none",
               borderRadius: "10px",
-              padding: "12px 14px",
+              padding: "15px 16px",
               marginBottom: "5px",
               background:
                 activePage === item.name
@@ -667,20 +734,68 @@ function App() {
         <div
           style={{
             position: "absolute",
-            bottom: "24px",
-            left: "25px",
-            right: "25px",
-            borderTop:
-              "1px solid rgba(255,255,255,0.25)",
-            paddingTop: "18px",
+            bottom: "18px",
+            left: "16px",
+            right: "16px",
             color: "#ede9fe",
-            fontSize: "11px",
           }}
         >
-          <div>AI-Powered Classroom</div>
+          <div
+            style={{
+              padding: "0 12px 12px",
+              fontSize: "10px",
+              lineHeight: "1.45",
+              color: "#ede9fe",
+            }}
+          >
+            <div>AI-Powered Classroom</div>
+            <div style={{ marginTop: "3px" }}>
+              Utilization & Energy Optimizer
+            </div>
+          </div>
 
-          <div style={{ marginTop: "4px" }}>
-            Utilization & Energy Optimizer
+          <div
+            style={{
+              borderTop: "1px solid rgba(255,255,255,0.25)",
+              paddingTop: "12px",
+            }}
+          >
+            <button
+              onClick={() => setActivePage("Profile")}
+              style={{
+                width: "100%",
+                border: "none",
+                borderRadius: "10px",
+                padding: "11px 14px",
+                background:
+                  activePage === "Profile"
+                    ? "rgba(255,255,255,0.22)"
+                    : "transparent",
+                color: "#ffffff",
+                display: "flex",
+                alignItems: "center",
+                gap: "13px",
+                cursor: "pointer",
+                fontSize: "14px",
+                textAlign: "left",
+                fontWeight: activePage === "Profile" ? "700" : "500",
+                boxShadow:
+                  activePage === "Profile"
+                    ? "inset 3px 0 0 #ffffff"
+                    : "none",
+              }}
+            >
+              <span
+                style={{
+                  width: "20px",
+                  textAlign: "center",
+                  fontSize: "16px",
+                }}
+              >
+                ◉
+              </span>
+              Profile
+            </button>
           </div>
         </div>
       </aside>
@@ -739,7 +854,7 @@ function App() {
       >
         <div
           style={{
-            padding: "7px 12px",
+            padding: "6px 11px",
             background: "#f3e8ff",
             color: "#7e22ce",
             borderRadius: "20px",
@@ -806,59 +921,135 @@ function App() {
           }}
         />
 
-        <div
-          style={{
-            position: "relative",
-            zIndex: 1,
-            maxWidth: "700px",
-          }}
-        >
-          <div
-            style={{
-              display: "inline-block",
-              padding: "5px 10px",
-              background:
-                "rgba(255,255,255,0.16)",
-              borderRadius: "20px",
-              fontSize: "11px",
-              marginBottom: "13px",
-            }}
-          >
-            ✦ AI-POWERED CLASSROOM INTELLIGENCE
-          </div>
+      <div
+  style={{
+    position: "absolute",
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    zIndex: 0,
+    overflow: "hidden",
+    borderRadius: "18px",
+  }}
+>
+  <img
+    src="/smartclassai_classroom_ai_poster.png"
+    alt="Smart Classroom Operations"
+    style={{
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+      objectPosition: "center",
+      display: "block",
+    }}
+  />
+</div>
 
-          <h1
-            style={{
-              margin: "0 0 9px",
-              fontSize: "29px",
-              fontWeight: "800",
-            }}
-          >
-            Smart Classroom Operations
-          </h1>
+<div
+  style={{
+    position: "absolute",
+    inset: 0,
+    zIndex: 1,
+    background: "rgba(45, 15, 90, 0.35)",
+    borderRadius: "18px",
+  }}
+/>
+  <div
+  style={{
+    position: "relative",
+    zIndex: 2,
+    maxWidth: "700px",
+  }}
+>
+  {/* AI-POWERED CLASSROOM INTELLIGENCE */}
+  <div
+    style={{
+      display: "inline-block",
+      padding: "6px 13px",
+      marginBottom: "13px",
+      borderRadius: "20px",
+      background: "rgba(196, 181, 253, 0.28)",
+      backdropFilter: "blur(6px)",
+      WebkitBackdropFilter: "blur(6px)",
+      border: "1px solid rgba(255,255,255,0.20)",
+    }}
+  >
+    <div
+      style={{
+        fontSize: "10px",
+        fontWeight: "700",
+        color: "#ffffff",
+        textShadow: "0 1px 5px rgba(45, 15, 90, 0.45)",
+      }}
+    >
+      ✦ AI-POWERED CLASSROOM INTELLIGENCE
+    </div>
+  </div>
 
-          <p
-            style={{
-              margin: 0,
-              color: "#f3e8ff",
-              lineHeight: "1.6",
-              fontSize: "14px",
-            }}
-          >
-            Monitor classroom utilization, predict
-            occupancy and energy consumption, and make
-            smarter room allocation decisions using
-            machine learning.
-          </p>
-        </div>
-      </div>
+  {/* SMART CLASSROOM OPERATIONS */}
+  <div
+  style={{
+    display: "inline-block",
+    padding: "7px 15px",
+    marginBottom: "9px",
+    borderRadius: "11px",
+    background: "rgba(196, 181, 253, 0.30)",
+    backdropFilter: "blur(7px)",
+    WebkitBackdropFilter: "blur(7px)",
+    border: "1px solid rgba(255,255,255,0.16)",
+  }}
+  >
+   <h1
+  style={{
+    margin: 0,
+    fontSize: "32px",
+    lineHeight: "1.1",
+    fontWeight: "900",
+    color: "#ffffff",
+    letterSpacing: "-0.5px",
+    textShadow: "0 2px 6px rgba(35, 10, 75, 0.35)",
+    WebkitTextFillColor: "#ffffff",
+  }}
+>
+  Smart Classroom Operations
+</h1>
+  </div>
 
+  {/* DESCRIPTION */}
+  <div
+    style={{
+      display: "inline-block",
+      maxWidth: "650px",
+      padding: "8px 14px",
+      borderRadius: "11px",
+      background: "rgba(196, 181, 253, 0.20)",
+      backdropFilter: "blur(7px)",
+      WebkitBackdropFilter: "blur(7px)",
+      border: "1px solid rgba(255,255,255,0.14)",
+    }}
+  >
+    <p
+      style={{
+        margin: 0,
+        color: "#ffffff",
+        lineHeight: "1.6",
+        fontSize: "14px",
+        textShadow: "0 1px 6px rgba(35, 10, 75, 0.40)",
+      }}
+    >
+      Monitor classroom utilization, predict occupancy and energy
+      consumption, and make smarter room allocation decisions using
+      machine learning.
+    </p>
+  </div>
+  </div>
+</div>
       <div
         style={{
           display: "grid",
           gridTemplateColumns:
             "repeat(4, 1fr)",
-          gap: "18px",
+          gap: "14px",
           marginBottom: "25px",
         }}
       >
@@ -921,7 +1112,7 @@ function App() {
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
-          gap: "20px",
+          gap: "24px",
           marginBottom: "25px",
         }}
       >
@@ -955,7 +1146,7 @@ function App() {
           display: "grid",
           gridTemplateColumns:
             "1.1fr 0.9fr",
-          gap: "20px",
+          gap: "24px",
           marginBottom: "25px",
         }}
       >
@@ -1210,7 +1401,7 @@ function App() {
                     <div
                       style={{
                         color: "#a78bfa",
-                        fontSize: "11px",
+                        fontSize: "10px",
                         marginTop: "3px",
                       }}
                     >
@@ -1236,7 +1427,7 @@ function App() {
                     >
                       <span
                         style={{
-                          fontSize: "11px",
+                          fontSize: "10px",
                           color: "#8b5cf6",
                         }}
                       >
@@ -1245,7 +1436,7 @@ function App() {
 
                       <span
                         style={{
-                          fontSize: "11px",
+                          fontSize: "10px",
                           fontWeight: "700",
                           color: "#7c3aed",
                         }}
@@ -1337,26 +1528,75 @@ function App() {
           }}
         >
           <input
-            type="number"
-            min="1"
-            placeholder="Enter number of students"
-            value={students}
-            onChange={(e) =>
-              setStudents(
-                e.target.value
-              )
-            }
-            style={{
-              width: "260px",
-              padding:
-                "12px 14px",
-              border:
-                "1px solid #d8b4fe",
-              borderRadius: "9px",
-              outline: "none",
-              fontSize: "13px",
-            }}
-          />
+  type="text"
+  inputMode="numeric"
+  placeholder="Enter number of students"
+  value={
+    students === undefined ||
+    students === null ||
+    students === ""
+      ? "0"
+      : String(students)
+  }
+  onFocus={(e) => {
+    e.target.select();
+  }}
+  onKeyDown={(e) => {
+    const currentValue = String(
+      students ?? 0
+    );
+
+    if (
+      (e.key === "Backspace" ||
+        e.key === "Delete") &&
+      currentValue === "0"
+    ) {
+      e.preventDefault();
+    }
+
+    if (
+      e.key === "." ||
+      e.key === "," ||
+      e.key === "e" ||
+      e.key === "E" ||
+      e.key === "+" ||
+      e.key === "-"
+    ) {
+      e.preventDefault();
+    }
+  }}
+  onChange={(e) => {
+    const rawValue =
+      e.target.value.replace(/\D/g, "");
+
+    if (rawValue === "") {
+      setStudents(0);
+      return;
+    }
+
+    const normalized =
+      rawValue.replace(
+        /^0+(?=\d)/,
+        ""
+      );
+
+    setStudents(
+      normalized === ""
+        ? 0
+        : Number(normalized)
+    );
+  }}
+  style={{
+    width: "260px",
+    padding:
+      "12px 14px",
+    border:
+      "1px solid #d8b4fe",
+    borderRadius: "9px",
+    outline: "none",
+    fontSize: "13px",
+  }}
+/>
 
           <button
             onClick={
@@ -1446,7 +1686,7 @@ function App() {
           display: "grid",
           gridTemplateColumns:
             "1fr 1fr 1fr",
-          gap: "18px",
+          gap: "14px",
         }}
       >
         <ModelCard
@@ -1553,8 +1793,8 @@ function App() {
             display: "grid",
             gridTemplateColumns:
               "repeat(3,1fr)",
-            gap: "18px",
-            marginBottom: "22px",
+            gap: "14px",
+            marginBottom: "26px",
           }}
         >
           <MetricCard
@@ -1921,9 +2161,16 @@ function App() {
                 "flex-start",
               marginBottom:
                 "20px",
+              position:
+                "relative",
             }}
           >
-            <div>
+            <div
+              style={{
+                paddingTop:
+                  "32px",
+              }}
+            >
               <h2
                 style={{
                   margin: 0,
@@ -1931,27 +2178,39 @@ function App() {
                     "19px",
                   color:
                     "#4c1d95",
+                  position:
+                    "absolute",
+                  top: 0,
+                  left:
+                    "50%",
+                  transform:
+                    "translateX(-50%)",
+                  whiteSpace:
+                    "nowrap",
+                      textAlign: "center",
                 }}
               >
                 AI Energy Optimization
               </h2>
 
-              <p
-                style={{
-                  margin:
-                    "6px 0 0",
-                  color:
-                    "#8b5cf6",
-                  fontSize:
-                    "12px",
-                  lineHeight:
-                    "1.6",
-                }}
-              >
-                Use the trained energy model to estimate
-                current consumption and identify smarter
-                equipment operating hours.
-              </p>
+             <p
+  style={{
+    margin: 0,
+    color: "#8b5cf6",
+    fontSize: "12px",
+    lineHeight: "1.6",
+    position: "absolute",
+    top: "32px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    width: "calc(100% - 180px)",
+    textAlign: "center",
+  }}
+>
+  Use the trained energy model to estimate
+  current consumption and identify smarter
+  equipment operating hours.
+</p>
             </div>
 
             <div
@@ -1979,7 +2238,7 @@ function App() {
               display:
                 "grid",
               gridTemplateColumns:
-                "repeat(4, 1fr)",
+                "repeat(4, minmax(0, 1fr))",
               gap: "13px",
               marginBottom:
                 "18px",
@@ -2417,7 +2676,7 @@ function App() {
               "grid",
             gridTemplateColumns:
               "1fr 1fr",
-            gap: "20px",
+            gap: "24px",
             marginBottom:
               "22px",
           }}
@@ -2927,25 +3186,29 @@ function App() {
           borderRadius: "18px",
           padding: "30px",
           color: "white",
-          marginBottom: "22px",
+          marginBottom: "26px",
           position: "relative",
           overflow: "hidden",
         }}
       >
-        <div
-          style={{
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
-          <div
+<div
+  style={{
+    position: "relative",
+    zIndex: 1,
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    textAlign: "center",
+  }}
+>          <div
             style={{
               display: "inline-block",
               padding: "5px 10px",
               background:
                 "rgba(255,255,255,0.16)",
               borderRadius: "20px",
-              fontSize: "11px",
+              fontSize: "10px",
               marginBottom: "13px",
             }}
           >
@@ -2957,6 +3220,7 @@ function App() {
               margin: "0 0 9px",
               fontSize: "28px",
               fontWeight: "800",
+              textAlign: "center",
             }}
           >
             Upload Classroom Dataset
@@ -2969,6 +3233,7 @@ function App() {
               lineHeight: "1.6",
               fontSize: "13px",
               maxWidth: "720px",
+              textAlign: "center",
             }}
           >
             Upload a CSV file provided by your school or college.
@@ -2982,8 +3247,8 @@ function App() {
         style={{
           display: "grid",
           gridTemplateColumns: "1.1fr 0.9fr",
-          gap: "20px",
-          marginBottom: "22px",
+          gap: "24px",
+          marginBottom: "26px",
         }}
       >
         <div
@@ -3050,7 +3315,7 @@ function App() {
             <div
               style={{
                 color: "#a78bfa",
-                fontSize: "11px",
+                fontSize: "10px",
                 marginTop: "5px",
               }}
             >
@@ -3125,7 +3390,7 @@ function App() {
                   borderRadius: "7px",
                   background: "#ffffff",
                   color: "#7c3aed",
-                  fontSize: "11px",
+                  fontSize: "10px",
                   fontWeight: "700",
                   cursor: uploadingDataset
                     ? "not-allowed"
@@ -3327,7 +3592,7 @@ function App() {
                 <div
                   style={{
                     color: "#a78bfa",
-                    fontSize: "11px",
+                    fontSize: "10px",
                     lineHeight: "1.5",
                     marginTop: "2px",
                   }}
@@ -3397,7 +3662,7 @@ function App() {
                 background: "#faf5ff",
                 borderRadius: "9px",
                 color: "#6d28d9",
-                fontSize: "11px",
+                fontSize: "10px",
                 fontWeight: "600",
                 wordBreak: "break-word",
               }}
@@ -3432,16 +3697,19 @@ function App() {
             color: "white",
             marginBottom:
               "22px",
+              width: "100%",
+boxSizing: "border-box",
+textAlign: "center",
           }}
         >
           <div
             style={{
               fontSize:
-                "11px",
+                "20px",
               color:
                 "#f3e8ff",
               fontWeight:
-                "700",
+                "900",
               letterSpacing:
                 "1px",
               marginBottom:
@@ -3454,8 +3722,7 @@ function App() {
           <h1
             style={{
               margin: 0,
-              fontSize:
-                "28px",
+              fontSize: "23px"
             }}
           >
             ML Performance & Classroom Insights
@@ -3471,6 +3738,7 @@ function App() {
                 "700px",
               lineHeight:
                 "1.6",
+                 margin: "0 auto",
             }}
           >
             Summary of model performance, classroom utilization
@@ -3484,7 +3752,7 @@ function App() {
               "grid",
             gridTemplateColumns:
               "repeat(4,1fr)",
-            gap: "18px",
+            gap: "14px",
             marginBottom:
               "22px",
           }}
@@ -3536,7 +3804,7 @@ function App() {
               "grid",
             gridTemplateColumns:
               "1fr 1fr",
-            gap: "20px",
+            gap: "24px",
             marginBottom:
               "22px",
           }}
@@ -3753,55 +4021,589 @@ function App() {
     );
 
   /* =========================
+   PROFILE PAGE
+========================= */
+
+const ProfilePage = () => {
+  const [editing, setEditing] = useState(false);
+
+  const [profileForm, setProfileForm] = useState({
+    collegeName: currentUser?.college_name || "",
+    collegeId: currentUser?.college_id || "",
+    email: currentUser?.email || "",
+    role: currentUser?.role || "College User",
+  });
+
+  const updateProfileField = (field, value) => {
+    setProfileForm((previous) => ({
+      ...previous,
+      [field]: value,
+    }));
+  };
+
+  const saveProfile = () => {
+    const updatedUser = {
+      ...(currentUser || {}),
+      college_name: profileForm.collegeName.trim(),
+      college_id: profileForm.collegeId.trim(),
+      email: profileForm.email.trim(),
+      role: profileForm.role.trim() || "College User",
+    };
+
+    setCurrentUser(updatedUser);
+
+    localStorage.setItem(
+      "smartclassai_user",
+      JSON.stringify(updatedUser)
+    );
+
+    setEditing(false);
+  };
+
+  const logout = () => {
+    localStorage.removeItem(
+      "smartclassai_access_token"
+    );
+
+    localStorage.removeItem(
+      "smartclassai_user"
+    );
+
+    setCurrentUser(null);
+    setIsAuthenticated(false);
+    setAuthMode("login");
+    setActivePage("Dashboard");
+  };
+
+  const labelStyle = {
+    display: "block",
+    marginBottom: "6px",
+    color: "#6d28d9",
+    fontSize: "11px",
+    fontWeight: "700",
+  };
+
+  const fieldStyle = {
+    width: "100%",
+    boxSizing: "border-box",
+    padding: "10px 13px",
+    border: "1px solid #e9d5ff",
+    borderRadius: "10px",
+    fontSize: "13px",
+    color: "#4c1d95",
+    background: editing
+      ? "#ffffff"
+      : "#faf7ff",
+    outline: "none",
+  };
+
+  const collegeName =
+    profileForm.collegeName ||
+    "Asmita College BSc.IT & Computer Science";
+
+  const displayRole =
+    profileForm.role ||
+    "College User";
+
+  return (
+    <div
+      style={{
+        padding: "18px 28px 34px",
+      }}
+    >
+      {/* Profile Heading */}
+      <div
+        style={{
+          marginBottom: "20px",
+        }}
+      >
+        <h1
+          style={{
+            margin: 0,
+            color: "#32127a",
+            fontSize: "28px",
+            lineHeight: 1.15,
+            fontWeight: "800",
+          }}
+        >
+          Profile
+        </h1>
+
+        <p
+          style={{
+            margin: "5px 0 0",
+            color: "#8b6fd8",
+            fontSize: "12px",
+          }}
+        >
+          Manage your SmartClassAI account and organization details.
+        </p>
+      </div>
+
+      {/* Account Information */}
+      <div
+        style={{
+          background: "#ffffff",
+          border: "1px solid #e9d5ff",
+          borderRadius: "18px",
+          padding: "22px 26px 26px",
+          boxShadow:
+            "0 8px 25px rgba(109,40,217,0.04)",
+          marginBottom: "18px",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "15px",
+            marginBottom: "20px",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            {/* AC - Asmita College */}
+            <div
+              style={{
+                width: "46px",
+                height: "46px",
+                borderRadius: "12px",
+                background:
+                  "linear-gradient(135deg, #ede9fe, #ddd6fe)",
+                color: "#6d28d9",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "16px",
+                fontWeight: "800",
+                border: "1px solid #ddd6fe",
+                flexShrink: 0,
+              }}
+            >
+              AC
+            </div>
+
+            <div>
+              <h2
+                style={{
+                  margin: 0,
+                  color: "#4c1d95",
+                  fontSize: "18px",
+                }}
+              >
+                Account Information
+              </h2>
+
+              <p
+                style={{
+                  margin: "4px 0 0",
+                  color: "#a78bfa",
+                  fontSize: "11px",
+                }}
+              >
+                Asmita College BSc.IT & Computer Science
+              </p>
+            </div>
+          </div>
+
+          {!editing && (
+            <button
+              onClick={() =>
+                setEditing(true)
+              }
+              style={{
+                border: "none",
+                background: "#6d28d9",
+                color: "#ffffff",
+                borderRadius: "9px",
+                padding: "10px 17px",
+                cursor: "pointer",
+                fontWeight: "700",
+                fontSize: "12px",
+              }}
+            >
+              Edit Profile
+            </button>
+          )}
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(2, minmax(0, 1fr))",
+            gap: "18px",
+          }}
+        >
+          {[
+            ["College Name", "collegeName"],
+            ["College ID", "collegeId"],
+            ["Email Address", "email"],
+            ["Role", "role"],
+          ].map(
+            ([label, field]) => (
+              <div key={field}>
+                <label
+                  style={labelStyle}
+                >
+                  {label}
+                </label>
+
+                <input
+                  style={fieldStyle}
+                  value={
+                    profileForm[field]
+                  }
+                  onChange={(e) =>
+                    updateProfileField(
+                      field,
+                      e.target.value
+                    )
+                  }
+                  disabled={!editing}
+                />
+              </div>
+            )
+          )}
+        </div>
+
+        {editing && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent:
+                "flex-end",
+              gap: "10px",
+              marginTop: "20px",
+            }}
+          >
+            <button
+              onClick={() =>
+                setEditing(false)
+              }
+              style={{
+                border:
+                  "1px solid #ddd6fe",
+                background:
+                  "#ffffff",
+                color: "#6d28d9",
+                borderRadius: "9px",
+                padding:
+                  "10px 17px",
+                cursor:
+                  "pointer",
+                fontWeight:
+                  "700",
+                fontSize:
+                  "12px",
+              }}
+            >
+              Cancel
+            </button>
+
+            <button
+              onClick={saveProfile}
+              style={{
+                border: "none",
+                background:
+                  "#6d28d9",
+                color:
+                  "#ffffff",
+                borderRadius:
+                  "9px",
+                padding:
+                  "10px 17px",
+                cursor:
+                  "pointer",
+                fontWeight:
+                  "700",
+                fontSize:
+                  "12px",
+              }}
+            >
+              Save Profile
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Organization + Security */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(2, minmax(0, 1fr))",
+          gap: "18px",
+        }}
+      >
+        {/* Organization */}
+        <div
+          style={{
+            background: "#ffffff",
+            border:
+              "1px solid #e9d5ff",
+            borderRadius: "18px",
+            padding: "22px 26px",
+            boxShadow:
+              "0 8px 25px rgba(109,40,217,0.04)",
+          }}
+        >
+          <h2
+            style={{
+              margin: 0,
+              color: "#4c1d95",
+              fontSize: "17px",
+            }}
+          >
+            Organization
+          </h2>
+
+          <p
+            style={{
+              margin:
+                "5px 0 16px",
+              color: "#a78bfa",
+              fontSize: "11px",
+            }}
+          >
+            Institution associated with this account
+          </p>
+
+          <div
+            style={{
+              padding: "17px",
+              borderRadius: "12px",
+              background: "#faf7ff",
+              border:
+                "1px solid #f3e8ff",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+              }}
+            >
+              <div
+                style={{
+                  width: "42px",
+                  height: "42px",
+                  borderRadius: "11px",
+                  background:
+                    "#ede9fe",
+                  color: "#6d28d9",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: "800",
+                  fontSize: "14px",
+                }}
+              >
+                AC
+              </div>
+
+              <div>
+                <div
+                  style={{
+                    color: "#a78bfa",
+                    fontSize: "9px",
+                    fontWeight: "700",
+                  }}
+                >
+                  COLLEGE / INSTITUTION
+                </div>
+
+                <div
+                  style={{
+                    marginTop: "5px",
+                    color: "#4c1d95",
+                    fontSize: "12px",
+                    fontWeight: "700",
+                  }}
+                >
+                  {collegeName}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Account Security */}
+        <div
+          style={{
+            background: "#ffffff",
+            border:
+              "1px solid #e9d5ff",
+            borderRadius: "18px",
+            padding: "22px 26px",
+            boxShadow:
+              "0 8px 25px rgba(109,40,217,0.04)",
+          }}
+        >
+          <h2
+            style={{
+              margin: 0,
+              color: "#4c1d95",
+              fontSize: "17px",
+            }}
+          >
+            Account Security
+          </h2>
+
+          <p
+            style={{
+              margin:
+                "5px 0 16px",
+              color: "#a78bfa",
+              fontSize: "11px",
+            }}
+          >
+            Security and account status
+          </p>
+
+          <div
+            style={{
+              padding:
+                "13px 15px",
+              borderRadius:
+                "11px",
+              background:
+                "#ecfdf5",
+              marginBottom:
+                "10px",
+              color:
+                "#047857",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "11px",
+                fontWeight: "700",
+              }}
+            >
+              ✓ Email Verification
+            </div>
+
+            <div
+              style={{
+                marginTop: "4px",
+                fontSize: "10px",
+              }}
+            >
+              Email address verified
+            </div>
+          </div>
+
+          <div
+            style={{
+              padding:
+                "13px 15px",
+              borderRadius:
+                "11px",
+              background:
+                "#faf7ff",
+              color:
+                "#6d28d9",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "11px",
+                fontWeight: "700",
+              }}
+            >
+              ● Account Status
+            </div>
+
+            <div
+              style={{
+                marginTop: "4px",
+                fontSize: "10px",
+              }}
+            >
+              Active and ready to use
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Logout */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginTop: "16px",
+        }}
+      >
+        <button
+          onClick={logout}
+          style={{
+            border:
+              "1px solid #fecaca",
+            background:
+              "#fff1f2",
+            color:
+              "#be123c",
+            borderRadius: "9px",
+            padding:
+              "10px 17px",
+            cursor:
+              "pointer",
+            fontWeight:
+              "700",
+            fontSize:
+              "12px",
+          }}
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+  );
+};
+
+  /* =========================
      PAGE ROUTING
   ========================= */
 
   const renderPage = () => {
     switch (activePage) {
       case "Dashboard":
-        return (
-          <DashboardPage />
-        );
+        return <DashboardPageWrapper render={DashboardPage} />;
 
       case "Classrooms":
-        return (
-          <ClassroomsPage />
-        );
+        return <ClassroomsPageWrapper render={ClassroomsPage} />;
 
       case "Predictions":
-        return (
-          <PredictionsPage />
-        );
+        return <PredictionsPageWrapper render={PredictionsPage} />;
 
       case "Analytics":
-        return (
-          <AnalyticsPage />
-        );
+        return <AnalyticsPageWrapper render={AnalyticsPage} />;
 
       case "Data Management":
-        return (
-          <DataManagementPage />
-        );
+        return <DataManagementPageWrapper render={DataManagementPage} />;
 
       case "Reports":
-        return (
-          <ReportsPage />
-        );
+        return <ReportsPageWrapper render={ReportsPage} />;
 
       case "Settings":
-        return (
-          <SettingsPage />
-        );
+        return <SettingsPageWrapper render={SettingsPage} />;
 
       case "Help":
-        return (
-          <HelpPage />
-        );
+        return <HelpPageWrapper render={HelpPage} />;
+
+      case "Profile":
+        return <ProfilePage />;
 
       default:
-        return (
-          <DashboardPage />
-        );
+        return <DashboardPageWrapper render={DashboardPage} />;
     }
   };
 
@@ -3834,6 +4636,1149 @@ function App() {
   );
 }
 
+/* =========================
+   AUTHENTICATION PAGE
+========================= */
+
+function AuthPage({
+  mode,
+  onModeChange,
+  onAuthenticated,
+}) {
+  const [form, setForm] = useState({
+    collegeName: "",
+    collegeId: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    otp: "",
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+
+  const updateField = (field, value) => {
+    setForm((previous) => ({
+      ...previous,
+      [field]: value,
+    }));
+  };
+
+  const switchMode = (nextMode) => {
+    setOtpSent(false);
+    setForm({
+      collegeName: "",
+      collegeId: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      otp: "",
+    });
+    onModeChange(nextMode);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (mode === "register") {
+      if (otpSent) {
+        if (!form.otp.trim()) {
+          alert("Please enter the 6-digit OTP.");
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            "http://127.0.0.1:8000/auth/verify-registration",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                college_id: form.collegeId.trim(),
+                email: form.email.trim(),
+                otp: form.otp.trim(),
+              }),
+            }
+          );
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(
+              data.detail ||
+                data.message ||
+                "OTP verification failed."
+            );
+          }
+
+          alert(
+            data.message ||
+              "Email verified successfully. Your college account has been created."
+          );
+          switchMode("login");
+        } catch (error) {
+          alert(
+            error.message ||
+              "Unable to verify the OTP."
+          );
+        }
+
+        return;
+      }
+
+      if (
+        !form.collegeName.trim() ||
+        !form.collegeId.trim() ||
+        !form.email.trim() ||
+        !form.password ||
+        !form.confirmPassword
+      ) {
+        alert("Please fill in all required fields.");
+        return;
+      }
+
+      if (form.password !== form.confirmPassword) {
+        alert("Password and confirm password do not match.");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          "http://127.0.0.1:8000/auth/register",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              college_name: form.collegeName.trim(),
+              college_id: form.collegeId.trim(),
+              email: form.email.trim(),
+              password: form.password,
+              confirm_password: form.confirmPassword,
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.detail ||
+              data.message ||
+              "Registration failed."
+          );
+        }
+
+        setOtpSent(true);
+        alert(
+          data.message ||
+            "Registration successful. An OTP has been sent to your registered email."
+        );
+      } catch (error) {
+        alert(
+          error.message ||
+            "Unable to connect to the backend."
+        );
+      }
+
+      return;
+    }
+
+    if (mode === "forgot") {
+  // ==========================================
+  // STEP 1: SEND PASSWORD RESET OTP
+  // ==========================================
+  if (!otpSent) {
+    if (!form.email.trim() && !form.collegeId.trim()) {
+      alert("Enter your registered College ID or email.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/auth/forgot-password/request",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            college_id: form.collegeId.trim() || null,
+            email: form.email.trim() || null,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail ||
+            data.message ||
+            "Unable to send OTP."
+        );
+      }
+
+      setOtpSent(true);
+
+      alert(
+        data.message ||
+          "Password reset OTP has been sent to your registered email."
+      );
+    } catch (error) {
+      alert(
+        error.message ||
+          "Unable to connect to the backend."
+      );
+    }
+
+    return;
+  }
+
+  // ==========================================
+  // STEP 2: VERIFY PASSWORD RESET OTP
+  // ==========================================
+  if (!form.otp.trim()) {
+    alert("Please enter the 6-digit OTP.");
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "http://127.0.0.1:8000/auth/forgot-password/verify",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          college_id: form.collegeId.trim() || null,
+          email: form.email.trim() || null,
+          otp: form.otp.trim(),
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.detail ||
+          data.message ||
+          "OTP verification failed."
+      );
+    }
+
+    alert(
+      data.message ||
+        "OTP verified successfully."
+    );
+
+    // OTP is verified.
+    // Password reset endpoint will be used
+    // when the new password fields are added.
+  } catch (error) {
+    alert(
+      error.message ||
+        "Unable to verify the OTP."
+    );
+  }
+
+  return;
+}
+
+    if (!form.collegeId.trim()) {
+      alert("Enter your College ID or registered email.");
+      return;
+    }
+
+    if (!form.password) {
+      alert("Please enter your password.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            college_id: form.collegeId.trim().includes('@')
+              ? null
+              : form.collegeId.trim(),
+            email: form.collegeId.trim().includes('@')
+              ? form.collegeId.trim()
+              : null,
+            password: form.password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail ||
+            data.message ||
+            "Login failed."
+        );
+      }
+
+      if (data.access_token) {
+        localStorage.setItem(
+          "smartclassai_access_token",
+          data.access_token
+        );
+      }
+
+      if (data.user) {
+        localStorage.setItem(
+          "smartclassai_user",
+          JSON.stringify(data.user)
+        );
+      }
+
+      onAuthenticated();
+    } catch (error) {
+      alert(
+        error.message ||
+          "Unable to connect to the backend."
+      );
+    }
+  };
+
+  const title =
+    mode === "register"
+      ? "Create your college account"
+      : mode === "forgot"
+        ? "Reset your password"
+        : "Welcome back";
+
+  const description =
+    mode === "register"
+      ? "Register your institution to use SmartClassAI."
+      : mode === "forgot"
+        ? "Verify your registered account and create a new password."
+        : "Sign in to manage classrooms, predictions and energy optimization.";
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #faf7ff 0%, #f3e8ff 100%)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "30px",
+        boxSizing: "border-box",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: mode === "register" ? "560px" : "505px",
+          background: "#ffffff",
+          border: "1px solid #e9d5ff",
+          borderRadius: "22px",
+          boxShadow: "0 20px 60px rgba(109, 40, 217, 0.14)",
+          overflow: "hidden",
+          animation: "scaCardFloat 6s ease-in-out infinite",
+        }}
+      >
+        <div
+  className="sca-login-hero"
+  style={{
+    position: "relative",
+    minHeight: "220px",
+    boxSizing: "border-box",
+    overflow: "hidden",
+    background:
+  "radial-gradient(circle at 15% 85%, rgba(255,255,255,0.10), transparent 32%), radial-gradient(circle at 82% 18%, rgba(255,255,255,0.13), transparent 30%), linear-gradient(135deg, #4c1d95 0%, #6d28d9 48%, #8b5cf6 100%)",
+    color: "#ffffff",
+  }}
+>
+  <style>{`
+    @keyframes scaHeroGrid {
+      from {
+        transform: translate3d(0, 0, 0);
+      }
+      to {
+        transform: translate3d(30px, 0, 0);
+      }
+    }
+
+    @keyframes scaBubbleOne {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.55;
+  }
+
+  50% {
+    transform: translate(-18px, 18px) scale(1.08);
+    opacity: 0.82;
+  }
+}
+
+@keyframes scaBubbleTwo {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.45;
+  }
+
+  50% {
+    transform: translate(20px, -15px) scale(1.10);
+    opacity: 0.72;
+  }
+}
+
+@keyframes scaBubbleThree {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.35;
+  }
+
+  50% {
+    transform: translate(15px, 12px) scale(1.08);
+    opacity: 0.60;
+  }
+}
+
+    @keyframes scaRobotFloat {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-9px);
+      }
+    }
+
+    @keyframes scaRobotTilt {
+      0%, 100% {
+        transform: rotate(0deg);
+      }
+      50% {
+        transform: rotate(2deg);
+      }
+    }
+
+    @keyframes scaRobotGlow {
+      0%, 100% {
+        transform: scale(.92);
+        opacity: .55;
+      }
+      50% {
+        transform: scale(1.08);
+        opacity: .85;
+      }
+    }
+
+    @keyframes scaSparkle {
+      0%, 100% {
+        opacity: .35;
+        transform: scale(.85);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.15);
+      }
+    }
+
+    .sca-login-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+
+      background-image:
+        linear-gradient(
+          rgba(255,255,255,.055) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          90deg,
+          rgba(255,255,255,.055) 1px,
+          transparent 1px
+        );
+
+      background-size: 30px 30px;
+      opacity: .62;
+
+      animation: scaHeroGrid 9s linear infinite;
+
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* TOP-RIGHT BUBBLE */
+.sca-login-orb-one {
+  position: absolute;
+  width: 210px;
+  height: 210px;
+  right: -55px;
+  top: -95px;
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 30% 28%,
+      rgba(255,255,255,0.32) 0%,
+      rgba(255,255,255,0.16) 22%,
+      rgba(255,255,255,0.07) 48%,
+      rgba(255,255,255,0.02) 68%,
+      transparent 76%
+    );
+
+  border: 1px solid rgba(255,255,255,0.13);
+
+  box-shadow:
+    inset -18px -20px 35px rgba(74,20,140,0.12),
+    inset 12px 10px 25px rgba(255,255,255,0.08),
+    0 0 35px rgba(255,255,255,0.07);
+
+  filter: blur(0.5px);
+  animation: scaBubbleOne 7s ease-in-out infinite;
+
+  pointer-events: none;
+  z-index: 1;
+}
+
+
+/* BOTTOM-LEFT/MIDDLE BUBBLE */
+.sca-login-orb-two {
+  position: absolute;
+  width: 190px;
+  height: 190px;
+  left: 75px;
+  bottom: -125px;
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 38% 25%,
+      rgba(255,255,255,0.26) 0%,
+      rgba(255,255,255,0.12) 25%,
+      rgba(255,255,255,0.055) 52%,
+      rgba(255,255,255,0.015) 70%,
+      transparent 78%
+    );
+
+  border: 1px solid rgba(255,255,255,0.10);
+
+  box-shadow:
+    inset 15px 12px 25px rgba(255,255,255,0.06),
+    inset -20px -20px 35px rgba(70,20,130,0.12),
+    0 0 30px rgba(255,255,255,0.05);
+
+  filter: blur(1px);
+  animation: scaBubbleTwo 8s ease-in-out infinite;
+
+  pointer-events: none;
+  z-index: 1;
+}
+
+
+/* SMALLER BUBBLE */
+.sca-login-orb-three {
+  position: absolute;
+  width: 105px;
+  height: 105px;
+  left: 205px;
+  top: 5px;
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 32% 28%,
+      rgba(255,255,255,0.24) 0%,
+      rgba(255,255,255,0.10) 30%,
+      rgba(255,255,255,0.035) 58%,
+      transparent 76%
+    );
+
+  border: 1px solid rgba(255,255,255,0.09);
+
+  box-shadow:
+    inset 10px 8px 18px rgba(255,255,255,0.07),
+    0 0 25px rgba(255,255,255,0.05);
+
+  filter: blur(1px);
+  animation: scaBubbleThree 6s ease-in-out infinite;
+
+  pointer-events: none;
+  z-index: 1;
+}
+
+    /* ROBOT */
+    .sca-login-robot {
+  position: absolute;
+  left: 25px;
+  bottom: 5px;
+
+  width: 190px;
+  height: 190px;
+
+  z-index: 4;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  animation: scaRobotFloat 4s ease-in-out infinite;
+
+  filter: drop-shadow(
+    0 12px 18px rgba(28, 7, 58, .28)
+  );
+}
+
+    .sca-login-robot-glow {
+      position: absolute;
+
+      width: 125px;
+      height: 125px;
+
+      border-radius: 50%;
+
+      background:
+        rgba(255,255,255,.18);
+
+      filter: blur(14px);
+
+      animation:
+        scaRobotGlow 3s ease-in-out infinite;
+
+      z-index: 0;
+    }
+
+    .sca-login-robot img {
+  position: relative;
+  z-index: 2;
+
+  width: 180px;
+  height: 180px;
+
+  object-fit: contain;
+
+  animation: scaRobotTilt 4.5s ease-in-out infinite;
+}
+
+    /* SPARKLES */
+    .sca-login-spark {
+      position: absolute;
+
+      z-index: 5;
+
+      color: #ddd6fe;
+
+      font-size: 14px;
+
+      animation:
+        scaSparkle 2.2s ease-in-out infinite;
+
+      pointer-events: none;
+    }
+
+    .sca-login-spark-one {
+      left: 145px;
+      top: 58px;
+    }
+
+    .sca-login-spark-two {
+      left: 76px;
+      top: 35px;
+
+      animation-delay: .8s;
+    }
+
+    .sca-login-spark-three {
+      left: 170px;
+      bottom: 38px;
+
+      animation-delay: 1.3s;
+    }
+
+    /* BRAND */
+    .sca-login-brand {
+  position: absolute;
+
+  left: 258px;
+  right: 22px;
+  top: 28px;
+
+  z-index: 6;
+
+  text-align: center;
+}
+
+    .sca-login-brand-name {
+      font-size: 21px;
+      line-height: 1.1;
+      font-weight: 800;
+    }
+
+    .sca-login-brand-subtitle {
+      margin-top: 5px;
+
+      font-size: 11px;
+
+      opacity: .9;
+    }
+
+    /* WELCOME TEXT */
+    .sca-login-copy {
+  position: absolute;
+
+  left: 258px;
+  right: 22px;
+  top: 101px;
+
+  z-index: 6;
+
+  text-align: center;
+}
+
+    .sca-login-copy h1 {
+      margin: 0;
+
+      font-size: 29px;
+
+      line-height: 1.15;
+
+      font-weight: 850;
+    }
+
+    .sca-login-copy p {
+      margin: 8px 0 0;
+
+      font-size: 12px;
+
+      line-height: 1.5;
+
+      opacity: .92;
+    }
+
+    @media (max-width: 560px) {
+      .sca-login-hero {
+        min-height: 205px !important;
+      }
+
+      .sca-login-robot {
+        left: 10px;
+        bottom: 22px;
+
+        width: 125px;
+        height: 125px;
+      }
+
+      .sca-login-robot img {
+        width: 115px;
+        height: 115px;
+      }
+
+      .sca-login-brand,
+      .sca-login-copy {
+        left: 175px;
+      }
+
+      .sca-login-copy {
+        right: 14px;
+      }
+
+      .sca-login-copy h1 {
+        font-size: 24px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sca-login-hero *,
+      .sca-login-hero::before {
+        animation: none !important;
+      }
+    }
+  `}</style>
+
+  {/* Animated bubbles */}
+  <div className="sca-login-orb-one" />
+  <div className="sca-login-orb-two" />
+  <div className="sca-login-orb-three" />
+
+  {/* Sparkles */}
+  <span className="sca-login-spark sca-login-spark-one">
+    ✦
+  </span>
+
+  <span className="sca-login-spark sca-login-spark-two">
+    ✦
+  </span>
+
+  <span className="sca-login-spark sca-login-spark-three">
+    ✦
+  </span>
+
+  {/* Robot */}
+  <div className="sca-login-robot" aria-hidden="true">
+    <div className="sca-login-robot-glow" />
+
+    <img
+      src="/profile-robot.png"
+      alt="SmartClassAI AI Assistant"
+    />
+  </div>
+
+  {/* Brand */}
+  <div className="sca-login-brand">
+    <div className="sca-login-brand-name">
+      SmartClassAI
+    </div>
+
+    <div className="sca-login-brand-subtitle">
+      Classroom Intelligence Platform
+    </div>
+  </div>
+
+  {/* Welcome */}
+  <div className="sca-login-copy">
+    <h1>{title}</h1>
+
+    <p>{description}</p>
+  </div>
+</div>
+
+<div style={{ padding: "30px" }}>          {mode !== "forgot" && (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "8px",
+                padding: "5px",
+                background: "#faf7ff",
+                border: "1px solid #ede9fe",
+                borderRadius: "12px",
+                marginBottom: "24px",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => switchMode("login")}
+                style={{
+                  border: "none",
+                  borderRadius: "9px",
+                  padding: "11px",
+                  background: mode === "login" ? "#7c3aed" : "transparent",
+                  color: mode === "login" ? "#ffffff" : "#6d28d9",
+                  fontWeight: "700",
+                  cursor: "pointer",
+                }}
+              >
+                Login
+              </button>
+
+              <button
+                type="button"
+                onClick={() => switchMode("register")}
+                style={{
+                  border: "none",
+                  borderRadius: "9px",
+                  padding: "11px",
+                  background: mode === "register" ? "#7c3aed" : "transparent",
+                  color: mode === "register" ? "#ffffff" : "#6d28d9",
+                  fontWeight: "700",
+                  cursor: "pointer",
+                }}
+              >
+                Create Account
+              </button>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            {mode === "register" && (
+              <AuthField
+                label="College Name"
+                placeholder="Enter college name"
+                value={form.collegeName}
+                onChange={(value) => updateField("collegeName", value)}
+              />
+            )}
+
+            <AuthField
+              label={
+                mode === "login"
+                  ? "College ID or Email"
+                  : "College ID"
+              }
+              placeholder={
+                mode === "login"
+                  ? "Enter College ID or Email"
+                  : "Enter College ID"
+              }
+              value={form.collegeId}
+              onChange={(value) =>
+                updateField("collegeId", value)
+              }
+            />
+
+            {mode !== "login" && (
+              <AuthField
+                label="Email"
+                type="email"
+                placeholder="college@example.com"
+                value={form.email}
+                onChange={(value) =>
+                  updateField("email", value)
+                }
+              />
+            )}
+
+            {mode !== "forgot" && (
+              <AuthPasswordField
+                label="Password"
+                placeholder="Enter password"
+                value={form.password}
+                visible={showPassword}
+                onToggle={() => setShowPassword((value) => !value)}
+                onChange={(value) => updateField("password", value)}
+              />
+            )}
+
+            {mode === "register" && (
+              <AuthPasswordField
+                label="Confirm Password"
+                placeholder="Re-enter password"
+                value={form.confirmPassword}
+                visible={showConfirmPassword}
+                onToggle={() => setShowConfirmPassword((value) => !value)}
+                onChange={(value) => updateField("confirmPassword", value)}
+              />
+            )}
+
+            {otpSent && (
+              <AuthField
+                label="Email OTP"
+                placeholder="Enter 6-digit OTP"
+                value={form.otp}
+                onChange={(value) => updateField("otp", value)}
+                inputMode="numeric"
+                maxLength={6}
+              />
+            )}
+
+            {mode === "login" && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: "-4px",
+                  marginBottom: "18px",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => switchMode("forgot")}
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    color: "#7c3aed",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                    padding: 0,
+                  }}
+                >
+                  Forgot Password?
+                </button>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              style={{
+                width: "100%",
+                border: "none",
+                borderRadius: "12px",
+                padding: "14px",
+                background: "linear-gradient(135deg, #6d28d9, #7c3aed)",
+                color: "#ffffff",
+                fontSize: "19px",
+                fontWeight: "800",
+                cursor: "pointer",
+                boxShadow: "0 8px 20px rgba(124,58,237,0.22)",
+              }}
+            >
+              {mode === "register"
+                ? otpSent
+                  ? "Verify Email OTP"
+                  : "Create Account"
+                : mode === "forgot"
+                  ? otpSent
+                    ? "Verify OTP"
+                    : "Send OTP"
+                  : "Login"}
+            </button>
+          </form>
+
+          {mode === "forgot" && (
+            <button
+              type="button"
+              onClick={() => switchMode("login")}
+              style={{
+                width: "100%",
+                marginTop: "16px",
+                border: "none",
+                background: "transparent",
+                color: "#7c3aed",
+                fontWeight: "700",
+                cursor: "pointer",
+              }}
+            >
+              ← Back to Login
+            </button>
+          )}
+
+          <div
+            style={{
+              marginTop: "24px",
+              paddingTop: "18px",
+              borderTop: "1px solid #f3e8ff",
+              textAlign: "center",
+              color: "#8b5cf6",
+              fontSize: "12px",
+              lineHeight: "1.5",
+            }}
+          >
+            Secure college-based access for SmartClassAI
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AuthField({
+  label,
+  type = "text",
+  placeholder,
+  value,
+  onChange,
+  inputMode,
+  maxLength,
+}) {
+  return (
+    <label
+      style={{
+        display: "block",
+        marginBottom: "16px",
+      }}
+    >
+      <span
+        style={{
+          display: "block",
+          marginBottom: "7px",
+          color: "#4c1d95",
+          fontSize: "13px",
+          fontWeight: "700",
+          textAlign: "left",
+        }}
+      >
+        {label}
+      </span>
+
+      <input
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        inputMode={inputMode}
+        maxLength={maxLength}
+        onChange={(event) => onChange(event.target.value)}
+        style={{
+          width: "100%",
+          boxSizing: "border-box",
+          padding: "12px 13px",
+          border: "1px solid #ddd6fe",
+          borderRadius: "10px",
+          outline: "none",
+          color: "#4c1d95",
+          background: "#ffffff",
+          fontSize: "14px",
+        }}
+      />
+    </label>
+  );
+}
+
+function AuthPasswordField({
+  label,
+  placeholder,
+  value,
+  visible,
+  onToggle,
+  onChange,
+}) {
+  return (
+    <label
+      style={{
+        display: "block",
+        marginBottom: "16px",
+      }}
+    >
+      <span
+        style={{
+          display: "block",
+          marginBottom: "7px",
+          color: "#4c1d95",
+          fontSize: "13px",
+          fontWeight: "700",
+          textAlign: "left",
+        }}
+      >
+        {label}
+      </span>
+
+      <div style={{ position: "relative" }}>
+        <input
+          type={visible ? "text" : "password"}
+          placeholder={placeholder}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          style={{
+            width: "100%",
+            boxSizing: "border-box",
+            padding: "12px 46px 12px 13px",
+            border: "1px solid #ddd6fe",
+            borderRadius: "10px",
+            outline: "none",
+            color: "#4c1d95",
+            background: "#ffffff",
+            fontSize: "14px",
+          }}
+        />
+
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-label={visible ? "Hide password" : "Show password"}
+          style={{
+            position: "absolute",
+            right: "10px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            border: "none",
+            background: "transparent",
+            color: "#8b5cf6",
+            cursor: "pointer",
+            fontWeight: "700",
+          }}
+        >
+          {visible ? "Hide" : "Show"}
+        </button>
+      </div>
+    </label>
+  );
+}
 /* =========================
    REUSABLE COMPONENTS
 ========================= */
@@ -4113,6 +6058,18 @@ function PredictionCard({
   );
 }
 
+function normalizeWholeNumberInput(value) {
+  const digits = String(value ?? "").replace(/\D/g, "");
+
+  if (digits === "") {
+    return 0;
+  }
+
+  const normalized = digits.replace(/^0+(?=\d)/, "");
+
+  return normalized === "" ? 0 : Number(normalized);
+}
+
 function PredictionForm({
   title,
   subtitle,
@@ -4272,38 +6229,87 @@ function PredictionForm({
                 {label}
               </div>
 
-              <input
-                type="number"
-                value={
-                  input[key]
-                }
-                onChange={(
-                  e
-                ) =>
-                  setInput({
-                    ...input,
-                    [key]:
-                      Number(
-                        e.target
-                          .value
-                      ),
-                  })
-                }
-                style={{
-                  width:
-                    "100%",
-                  boxSizing:
-                    "border-box",
-                  padding:
-                    "10px 11px",
-                  border:
-                    "1px solid #d8b4fe",
-                  borderRadius:
-                    "8px",
-                  outline:
-                    "none",
-                }}
-              />
+             <input
+  type="text"
+  inputMode="numeric"
+  value={
+    input[key] === undefined ||
+    input[key] === null ||
+    input[key] === ""
+      ? "0"
+      : String(input[key])
+  }
+  onFocus={(e) => {
+    e.target.select();
+  }}
+  onKeyDown={(e) => {
+    const currentValue = String(
+      input[key] ?? 0
+    );
+
+    if (
+      (e.key === "Backspace" ||
+        e.key === "Delete") &&
+      currentValue === "0"
+    ) {
+      e.preventDefault();
+    }
+
+    if (
+      e.key === "." ||
+      e.key === "," ||
+      e.key === "e" ||
+      e.key === "E" ||
+      e.key === "+" ||
+      e.key === "-"
+    ) {
+      e.preventDefault();
+    }
+  }}
+  onChange={(e) => {
+    const rawValue =
+      e.target.value.replace(
+        /\D/g,
+        ""
+      );
+
+    if (rawValue === "") {
+      setInput({
+        ...input,
+        [key]: 0,
+      });
+      return;
+    }
+
+    const normalized =
+      rawValue.replace(
+        /^0+(?=\d)/,
+        ""
+      );
+
+    setInput({
+      ...input,
+      [key]:
+        normalized === ""
+          ? 0
+          : Number(normalized),
+    });
+  }}
+  style={{
+    width:
+      "100%",
+    boxSizing:
+      "border-box",
+    padding:
+      "10px 11px",
+    border:
+      "1px solid #d8b4fe",
+    borderRadius:
+      "8px",
+    outline:
+      "none",
+  }}
+/>
             </label>
           )
         )}
@@ -4416,16 +6422,66 @@ function OptimizationInput({
       </div>
 
       <input
-        type="number"
-        min="0"
-        value={value}
-        onChange={(e) =>
-          onChange(
-            Number(
-              e.target.value
-            )
-          )
+        type="text"
+        inputMode="numeric"
+        value={
+          value === undefined ||
+          value === null ||
+          value === ""
+            ? "0"
+            : String(value)
         }
+        onFocus={(e) => {
+          e.target.select();
+        }}
+        onKeyDown={(e) => {
+          const currentValue = String(
+            value ?? 0
+          );
+
+          if (
+            (e.key === "Backspace" ||
+              e.key === "Delete") &&
+            currentValue === "0"
+          ) {
+            e.preventDefault();
+          }
+
+          if (
+            e.key === "." ||
+            e.key === "," ||
+            e.key === "e" ||
+            e.key === "E" ||
+            e.key === "+" ||
+            e.key === "-"
+          ) {
+            e.preventDefault();
+          }
+        }}
+        onChange={(e) => {
+          const rawValue =
+            e.target.value.replace(
+              /\D/g,
+              ""
+            );
+
+          if (rawValue === "") {
+            onChange(0);
+            return;
+          }
+
+          const normalized =
+            rawValue.replace(
+              /^0+(?=\d)/,
+              ""
+            );
+
+          onChange(
+            normalized === ""
+              ? 0
+              : Number(normalized)
+          );
+        }}
         style={{
           width:
             "100%",
@@ -4446,7 +6502,6 @@ function OptimizationInput({
     </label>
   );
 }
-
 function OptimizationResult({
   label,
   value,
@@ -4958,7 +7013,7 @@ const tableHead = {
   textAlign: "left",
   color: "#7c3aed",
   fontWeight: "600",
-  fontSize: "11px",
+  fontSize: "10px",
   borderBottom:
     "1px solid #e9d5ff",
 };

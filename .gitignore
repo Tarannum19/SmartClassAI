@@ -1,12 +1,43 @@
-venv/
+# Python
 __pycache__/
-*.pyc
-node_modules/
-frontend/dist/
-data/uploads/
-.env
+*.py[cod]
+*.pyo
+*.pyd
 
-# Local database
-data/*.db
-data/*.sqlite
-data/*.sqlite3
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Environment variables / secrets
+.env
+.env.*
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Frontend build
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python cache / notebooks
+.ipynb_checkpoints/
+
+# Logs
+*.log
