@@ -1,5 +1,6 @@
 import os
-import sqlite3
+import psycopg
+from psycopg.rows import dict_row
 import hashlib
 import hmac
 import secrets
@@ -17,10 +18,6 @@ from pydantic import BaseModel, EmailStr, Field
 # ============================================================
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, "data")
-DB_PATH = os.path.join(DATA_DIR, "smartclassai_auth.db")
-
-os.makedirs(DATA_DIR, exist_ok=True)
 
 TOKEN_SECRET = os.getenv(
     "SMARTCLASSAI_TOKEN_SECRET",
@@ -34,23 +31,64 @@ OTP_EXPIRY_MINUTES = 10
 # DATABASE
 # ============================================================
 
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL is not configured. "
+        "Please add DATABASE_URL to the environment variables."
+    )
+
+
+class DatabaseConnection:
+    """
+    PostgreSQL connection wrapper.
+
+    Existing authentication code uses SQLite-style ? placeholders.
+    This wrapper converts ? to PostgreSQL %s automatically.
+    """
+
+    def __init__(self):
+        self.connection = psycopg.connect(
+            DATABASE_URL,
+            row_factory=dict_row,
+        )
+
+    def execute(self, query, params=None):
+        query = query.replace("?", "%s")
+
+        if params is None:
+            return self.connection.execute(query)
+
+        return self.connection.execute(
+            query,
+            params,
+        )
+
+    def commit(self):
+        self.connection.commit()
+
+    def rollback(self):
+        self.connection.rollback()
+
+    def close(self):
+        self.connection.close()
+
+
 def get_connection():
-    connection = sqlite3.connect(DB_PATH)
-    connection.row_factory = sqlite3.Row
-    return connection
+    return DatabaseConnection()
 
 
 def initialize_database():
     connection = get_connection()
-    cursor = connection.cursor()
 
     # --------------------------------------------------------
     # Registered college accounts
     # --------------------------------------------------------
-    cursor.execute(
+    connection.execute(
         """
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id BIGSERIAL PRIMARY KEY,
             college_name TEXT NOT NULL,
             college_id TEXT NOT NULL UNIQUE,
             email TEXT NOT NULL UNIQUE,
@@ -65,15 +103,11 @@ def initialize_database():
 
     # --------------------------------------------------------
     # Temporary registrations
-    #
-    # IMPORTANT:
-    # An account is NOT stored in users until OTP verification
-    # succeeds. Incomplete registrations live here temporarily.
     # --------------------------------------------------------
-    cursor.execute(
+    connection.execute(
         """
         CREATE TABLE IF NOT EXISTS pending_registrations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id BIGSERIAL PRIMARY KEY,
             college_name TEXT NOT NULL,
             college_id TEXT NOT NULL UNIQUE,
             email TEXT NOT NULL UNIQUE,
@@ -84,12 +118,12 @@ def initialize_database():
     )
 
     # --------------------------------------------------------
-    # OTP table
+    # OTP records
     # --------------------------------------------------------
-    cursor.execute(
+    connection.execute(
         """
         CREATE TABLE IF NOT EXISTS otp_codes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id BIGSERIAL PRIMARY KEY,
             college_id TEXT,
             email TEXT NOT NULL,
             otp_hash TEXT NOT NULL,
@@ -100,96 +134,6 @@ def initialize_database():
         )
         """
     )
-
-    # --------------------------------------------------------
-    # Database migration for the old OTP table.
-    #
-    # The previous database may have been created without the
-    # "used" column. Add it automatically instead of requiring
-    # the user to delete the database.
-    # --------------------------------------------------------
-    otp_columns = {
-        row["name"]
-        for row in cursor.execute(
-            "PRAGMA table_info(otp_codes)"
-        ).fetchall()
-    }
-
-    if "used" not in otp_columns:
-        cursor.execute(
-            """
-            ALTER TABLE otp_codes
-            ADD COLUMN used INTEGER NOT NULL DEFAULT 0
-            """
-        )
-
-    # --------------------------------------------------------
-    # Migration of OLD incomplete accounts.
-    #
-    # Older auth.py versions incorrectly stored unverified
-    # registrations in users. Move them to pending_registrations
-    # and remove them from users.
-    # --------------------------------------------------------
-    user_columns = {
-        row["name"]
-        for row in cursor.execute(
-            "PRAGMA table_info(users)"
-        ).fetchall()
-    }
-
-    if "is_verified" in user_columns:
-        old_pending = cursor.execute(
-            """
-            SELECT
-                college_name,
-                college_id,
-                email,
-                password_hash,
-                created_at
-            FROM users
-            WHERE is_verified = 0
-            """
-        ).fetchall()
-
-        for row in old_pending:
-            existing_pending = cursor.execute(
-                """
-                SELECT id
-                FROM pending_registrations
-                WHERE college_id = ?
-                   OR email = ?
-                LIMIT 1
-                """,
-                (
-                    row["college_id"],
-                    row["email"],
-                ),
-            ).fetchone()
-
-            if existing_pending is None:
-                cursor.execute(
-                    """
-                    INSERT INTO pending_registrations (
-                        college_name,
-                        college_id,
-                        email,
-                        password_hash,
-                        created_at
-                    )
-                    VALUES (?, ?, ?, ?, ?)
-                    """,
-                    (
-                        row["college_name"],
-                        row["college_id"],
-                        row["email"],
-                        row["password_hash"],
-                        row["created_at"],
-                    ),
-                )
-
-        cursor.execute(
-            "DELETE FROM users WHERE is_verified = 0"
-        )
 
     connection.commit()
     connection.close()
@@ -1038,6 +982,7 @@ def verify_registration(
                 created_at
             )
             VALUES (?, ?, ?, ?, 'college', 1, 'active', ?)
+              RETURNING id
             """,
             (
                 pending["college_name"],
@@ -1048,7 +993,7 @@ def verify_registration(
             ),
         )
 
-        new_user_id = cursor.lastrowid
+        new_user_id = cursor.fetchone()["id"]
 
         connection.execute(
             """
@@ -1069,7 +1014,7 @@ def verify_registration(
 
         connection.commit()
 
-    except sqlite3.IntegrityError:
+    except psycopg.errors.UniqueViolation:
         connection.rollback()
         connection.close()
 
