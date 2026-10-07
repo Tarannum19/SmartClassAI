@@ -38,6 +38,10 @@ app.add_middleware(
         # Live Vercel frontend
         "https://smart-class-ai.vercel.app",
         "https://smart-class-ai-69lb.vercel.app",
+
+        # Live Render frontend
+"https://smartclassai-frontend-live.onrender.com",
+        
     ],
     allow_credentials=True,
     allow_methods=["*"],
