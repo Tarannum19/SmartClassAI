@@ -4690,7 +4690,7 @@ function AuthPage({
 
         try {
           const response = await fetch(
-            "http://https://smartclassai-backend-wud1.onrender.com/auth/verify-registration",
+            "https://smartclassai-backend-wud1.onrender.com/auth/verify-registration",
             {
               method: "POST",
               headers: {
@@ -4747,7 +4747,7 @@ function AuthPage({
 
       try {
         const response = await fetch(
-          "http://https://smartclassai-backend-wud1.onrender.com/auth/register",
+          "https://smartclassai-backend-wud1.onrender.com/auth/register",
           {
             method: "POST",
             headers: {
@@ -4800,7 +4800,7 @@ function AuthPage({
 
     try {
       const response = await fetch(
-        "http://https://smartclassai-backend-wud1.onrender.com/auth/forgot-password/request",
+       "https://smartclassai-backend-wud1.onrender.com/auth/forgot-password/request",
         {
           method: "POST",
           headers: {
@@ -4849,7 +4849,7 @@ function AuthPage({
 
   try {
     const response = await fetch(
-      "http://https://smartclassai-backend-wud1.onrender.com/auth/forgot-password/verify",
+      "https://smartclassai-backend-wud1.onrender.com/auth/forgot-password/verify",
       {
         method: "POST",
         headers: {
@@ -4903,7 +4903,7 @@ function AuthPage({
 
     try {
       const response = await fetch(
-        "http://https://smartclassai-backend-wud1.onrender.com/auth/login",
+        "https://smartclassai-backend-wud1.onrender.com/auth/login",
         {
           method: "POST",
           headers: {
