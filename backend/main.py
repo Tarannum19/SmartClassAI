@@ -40,9 +40,10 @@ app.add_middleware(
         "https://smart-class-ai-69lb.vercel.app",
 
         # Live Render frontend
-"https://smartclassai-frontend-live.onrender.com",
+        "https://smartclassai-frontend-live.onrender.com",
         
     ],
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
