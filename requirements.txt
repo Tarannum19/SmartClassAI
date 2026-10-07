@@ -6,3 +6,8 @@ fastapi
 uvicorn
 python-multipart
 joblib
+fastapi
+uvicorn
+python-multipart
+joblib
+email-validator
