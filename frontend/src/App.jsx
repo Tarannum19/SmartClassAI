@@ -15,7 +15,7 @@ import {
 } from "recharts";
 import "./App.css";
 
-const API_URL = "http://https://smartclassai-backend-wud1.onrender.com";
+const API_URL = "https://smartclassai-backend-kj72.onrender.com";
 
 
 function DashboardPageWrapper({ render }) {
@@ -3911,7 +3911,7 @@ textAlign: "center",
 
           <SettingRow
             title="Backend API"
-            value="http://https://smartclassai-backend-wud1.onrender.com"
+            value="http://https://smartclassai-backend-kj72.onrender.com"
           />
 
           <SettingRow
@@ -4690,7 +4690,7 @@ function AuthPage({
 
         try {
           const response = await fetch(
-            "https://smartclassai-backend-wud1.onrender.com/auth/verify-registration",
+            "https://smartclassai-backend-kj72.onrender.com/auth/verify-registration",
             {
               method: "POST",
               headers: {
@@ -4747,7 +4747,7 @@ function AuthPage({
 
       try {
         const response = await fetch(
-          "https://smartclassai-backend-wud1.onrender.com/auth/register",
+          "https://smartclassai-backend-kj72.onrender.com/auth/register",
           {
             method: "POST",
             headers: {
@@ -4764,14 +4764,19 @@ function AuthPage({
         );
 
         const data = await response.json();
+if (!response.ok) {
+  const detail = Array.isArray(data.detail)
+    ? data.detail
+        .map((item) => item.msg || item.message || JSON.stringify(item))
+        .join("\n")
+    : data.detail;
 
-        if (!response.ok) {
-          throw new Error(
-            data.detail ||
-              data.message ||
-              "Registration failed."
-          );
-        }
+  throw new Error(
+    detail ||
+      data.message ||
+      "Registration failed."
+  );
+}
 
         setOtpSent(true);
         alert(
@@ -4800,7 +4805,7 @@ function AuthPage({
 
     try {
       const response = await fetch(
-       "https://smartclassai-backend-wud1.onrender.com/auth/forgot-password/request",
+       "https://smartclassai-backend-kj72.onrender.com/auth/forgot-password/request",
         {
           method: "POST",
           headers: {
@@ -4849,7 +4854,7 @@ function AuthPage({
 
   try {
     const response = await fetch(
-      "https://smartclassai-backend-wud1.onrender.com/auth/forgot-password/verify",
+      "https://smartclassai-backend-kj72.onrender.com/auth/forgot-password/verify",
       {
         method: "POST",
         headers: {
@@ -4903,7 +4908,7 @@ function AuthPage({
 
     try {
       const response = await fetch(
-        "https://smartclassai-backend-wud1.onrender.com/auth/login",
+        "https://smartclassai-backend-kj72.onrender.com/auth/login",
         {
           method: "POST",
           headers: {
@@ -4944,15 +4949,18 @@ function AuthPage({
           JSON.stringify(data.user)
         );
       }
+onAuthenticated();
+} catch (error) {
+  alert(
+    Array.isArray(error.message)
+      ? error.message
+          .map((err) => err.msg || JSON.stringify(err))
+          .join("\n")
+      : error.message || "Unable to connect to the backend."
+  );
+}
+  }
 
-      onAuthenticated();
-    } catch (error) {
-      alert(
-        error.message ||
-          "Unable to connect to the backend."
-      );
-    }
-  };
 
   const title =
     mode === "register"
