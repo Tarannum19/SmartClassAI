@@ -2240,6 +2240,7 @@ function App() {
               gridTemplateColumns:
                 "repeat(4, minmax(0, 1fr))",
               gap: "13px",
+              marginTop: "42px",
               marginBottom:
                 "18px",
             }}
@@ -3722,7 +3723,8 @@ textAlign: "center",
           <h1
             style={{
               margin: 0,
-              fontSize: "23px"
+              fontSize: "23px",
+              fontWeight: "650",
             }}
           >
             ML Performance & Classroom Insights
