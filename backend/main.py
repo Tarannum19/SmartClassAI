@@ -5,7 +5,7 @@ import pandas as pd
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 
-from auth import router as auth_router
+from backend.auth import router as auth_router
 from prediction import router as prediction_router
 from recommendation import recommend_classroom
 from classrooms import router as classrooms_router
