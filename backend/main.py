@@ -6,10 +6,10 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.auth import router as auth_router
-from prediction import router as prediction_router
-from recommendation import recommend_classroom
-from classrooms import router as classrooms_router
-from upload import router as upload_router
+from backend.prediction import router as prediction_router
+from backend.recommendation import recommend_classroom
+from backend.classrooms import router as classrooms_router
+from backend.upload import router as upload_router
 
 
 # ============================================================
