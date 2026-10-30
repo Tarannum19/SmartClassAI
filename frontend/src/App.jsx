@@ -15,7 +15,7 @@ import {
 } from "recharts";
 import "./App.css";
 
-const API_URL = "https://smartclassai-backend-kj72.onrender.com";
+const API_URL = "https://smartclassai-7.onrender.com";
 
 
 function DashboardPageWrapper({ render }) {
@@ -3913,7 +3913,7 @@ textAlign: "center",
 
           <SettingRow
             title="Backend API"
-            value="http://https://smartclassai-backend-kj72.onrender.com"
+            value="http://https://smartclassai-7.onrender.com";
           />
 
           <SettingRow
