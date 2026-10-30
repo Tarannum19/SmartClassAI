@@ -3913,7 +3913,7 @@ textAlign: "center",
 
           <SettingRow
             title="Backend API"
-            value="http://https://smartclassai-7.onrender.com";
+            value="https://smartclassai-7.onrender.com"
           />
 
           <SettingRow
